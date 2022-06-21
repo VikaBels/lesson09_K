@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".InfoActivity">
+
+    <TextView
+        android:id="@+id/txtSavedDigit"
+        style="@style/StyleForTextViewInfoTxtDigits"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/txtSavedDigits"
+        app:layout_constraintBottom_toTopOf="@id/allDigit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/allDigit"
+        style="@style/StyleForTextViewInfoDigits"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginVertical="5dp"
+        android:hint="@string/noDigits"
+        app:layout_constraintBottom_toTopOf="@+id/txtCurrentDigit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtSavedDigit" />
+
+    <TextView
+        android:id="@+id/txtCurrentDigit"
+        style="@style/StyleForTextViewInfoTxtDigit"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="@string/txtCurrentDigit"
+        app:layout_constraintBottom_toTopOf="@+id/btnSave"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/allDigit" />
+
+    <TextView
+        android:id="@+id/currentDigit"
+        style="@style/StyleForTextViewInfoDigit"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:hint="@string/noDigit"
+        app:layout_constraintBottom_toTopOf="@+id/btnCalculator"
+        app:layout_constraintEnd_toStartOf="@id/btnSave"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtCurrentDigit" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="5dp"
+        android:text="@string/Save"
+        app:layout_constraintBottom_toTopOf="@+id/btnCalculator"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/currentDigit"
+        app:layout_constraintTop_toBottomOf="@+id/txtCurrentDigit" />
+
+    <Button
+        android:id="@+id/btnCalculator"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginBottom="50dp"
+        android:text="@string/Calculator"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSave" />
+</androidx.constraintlayout.widget.ConstraintLayout>
