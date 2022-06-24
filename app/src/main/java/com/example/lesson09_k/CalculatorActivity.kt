@@ -28,7 +28,6 @@ class CalculatorActivity : AppCompatActivity() {
 
     private var txtViewResult: TextView? = null
 
-    private val line = StringBuilder()
     private val number = StringBuilder()
 
     private var num1 = 0
@@ -40,7 +39,17 @@ class CalculatorActivity : AppCompatActivity() {
     private var helpInt = 0
     private var helperSum = 0
 
-    fun findViewById() {
+    private val currentDigitKey = "currentDigit"
+    private val emptyLine =""
+
+    private var equalOperand: String = "="
+    private var plusOperand: String = "+"
+    private var minusOperand: String = "-"
+    private var multiplyOperand: String = "*"
+    private var divideOperand: String = "/"
+
+
+    private fun findViewById() {
         btnZero = findViewById(R.id.btnZero)
         btnOne = findViewById(R.id.btnOne)
         btnTwo = findViewById(R.id.btnTwo)
@@ -61,43 +70,46 @@ class CalculatorActivity : AppCompatActivity() {
         txtViewResult = findViewById(R.id.txtResult)
     }
 
-    fun setOnClickListener(allButton: View.OnClickListener?) {
-        btnZero!!.setOnClickListener(allButton)
-        btnOne!!.setOnClickListener(allButton)
-        btnTwo!!.setOnClickListener(allButton)
-        btnThree!!.setOnClickListener(allButton)
-        btnFour!!.setOnClickListener(allButton)
-        btnFive!!.setOnClickListener(allButton)
-        btnSix!!.setOnClickListener(allButton)
-        btnSeven!!.setOnClickListener(allButton)
-        btnEight!!.setOnClickListener(allButton)
-        btnNine!!.setOnClickListener(allButton)
-        btnPlus!!.setOnClickListener(allButton)
-        btnMinus!!.setOnClickListener(allButton)
-        btnDivide!!.setOnClickListener(allButton)
-        btnMultiply!!.setOnClickListener(allButton)
-        btnEqual!!.setOnClickListener(allButton)
-        btnClear!!.setOnClickListener(allButton)
-        btnOk!!.setOnClickListener(allButton)
+    private fun setOnClickListener(allButton: View.OnClickListener?) {
+        btnZero?.setOnClickListener(allButton)
+        btnOne?.setOnClickListener(allButton)
+        btnTwo?.setOnClickListener(allButton)
+        btnThree?.setOnClickListener(allButton)
+        btnFour?.setOnClickListener(allButton)
+        btnFive?.setOnClickListener(allButton)
+        btnSix?.setOnClickListener(allButton)
+        btnSeven?.setOnClickListener(allButton)
+        btnEight?.setOnClickListener(allButton)
+        btnNine?.setOnClickListener(allButton)
+        btnPlus?.setOnClickListener(allButton)
+        btnMinus?.setOnClickListener(allButton)
+        btnDivide?.setOnClickListener(allButton)
+        btnMultiply?.setOnClickListener(allButton)
+        btnEqual?.setOnClickListener(allButton)
+        btnClear?.setOnClickListener(allButton)
+        btnOk?.setOnClickListener(allButton)
     }
 
-    fun selectedButton(selectedButton: Button) {
+    private fun selectedButtonClick(selectedButton: Button) {
         number.append(selectedButton.text.toString().trim { it <= ' ' })
-        txtViewResult!!.text = number
-        line.append(selectedButton.text.toString().trim { it <= ' ' })
+        txtViewResult?.text = number
     }
 
-    fun workWithOperand(selectedOperand: String, selectedButton: Button) {
-        if (selectedOperand == "=" && operand == "=") {
+    private fun parseStringBuilderToInt(number: StringBuilder): Int {
+       return number.toString().toInt()
+    }
+
+    private fun workWithOperand( selectedButton: Button) {
+        if (selectedButton.text == equalOperand && operand == equalOperand) {
             num1 = helperSum
             operand = helpOperand
         }
         if (num1 == 0) {
-            num1 = number.toString().toInt()
-            operand = selectedOperand
+            num1 = parseStringBuilderToInt(number)
+            operand = selectedButton.text.toString()
         } else if (num2 == 0) {
             try {
-                num2 = number.toString().toInt()
+                num2 = parseStringBuilderToInt(number)
                 helpInt = num2
                 helpOperand = operand
             } catch (e: Exception) {
@@ -108,35 +120,35 @@ class CalculatorActivity : AppCompatActivity() {
                 num2 = helpInt
             }
             when (operand) {
-                "+" -> num1 = num1 + num2
-                "-" -> num1 = num1 - num2
-                "/" -> if (num2 == 0) {
-                    error = true
-                } else {
-                    num1 = num1 / num2
-                }
-                "*" -> num1 = num1 * num2
+                plusOperand -> num1 += num2
+                minusOperand -> num1 -= num2
+                divideOperand ->
+                    if (num2 == 0) {
+                        error = true
+                    } else {
+                        num1 /= num2
+                    }
+                multiplyOperand -> num1 *= num2
             }
-            operand = selectedOperand
+            operand = selectedButton.text.toString()
             num2 = 0
         }
-        if (selectedOperand == "=") {
-            txtViewResult!!.text = if (error) "ERROR" else num1.toString()
+        if (selectedButton.text.toString() == equalOperand) {
+            txtViewResult?.text =
+                if (error) resources.getString(R.string.error) else num1.toString()
             number.setLength(0)
             helperSum = num1
-            //num1 = 0;
         } else {
             number.setLength(0)
-            line.append(selectedButton.text.toString().trim { it <= ' ' })
         }
     }
 
-    fun clearVariables() {
-        operand = ""
+    private fun clearVariables() {
+        operand = emptyLine
         num1 = 0
         helpInt = 0
         helperSum = 0
-        helpOperand = ""
+        helpOperand = emptyLine
     }
 
 
@@ -148,32 +160,23 @@ class CalculatorActivity : AppCompatActivity() {
 
         val allButton = View.OnClickListener { v ->
             when (v.id) {
-                R.id.btnZero -> selectedButton(btnZero!!)
-                R.id.btnOne -> selectedButton(btnOne!!)
-                R.id.btnTwo -> selectedButton(btnTwo!!)
-                R.id.btnThree -> selectedButton(btnThree!!)
-                R.id.btnFour -> selectedButton(btnFour!!)
-                R.id.btnFive -> selectedButton(btnFive!!)
-                R.id.btnSix -> selectedButton(btnSix!!)
-                R.id.btnSeven -> selectedButton(btnSeven!!)
-                R.id.btnEight -> selectedButton(btnEight!!)
-                R.id.btnNine -> selectedButton(btnNine!!)
-                R.id.btnPlus -> workWithOperand("+", btnPlus!!)
-                R.id.btnMinus -> workWithOperand("-", btnMinus!!)
-                R.id.btnDivide -> workWithOperand("/", btnDivide!!)
-                R.id.btnMultiply -> workWithOperand("*", btnMultiply!!)
+                R.id.btnZero, R.id.btnOne, R.id.btnTwo, R.id.btnThree,
+                R.id.btnFour, R.id.btnFive, R.id.btnSix, R.id.btnSeven,
+                R.id.btnEight, R.id.btnNine -> selectedButtonClick(findViewById(v.id))
+                R.id.btnPlus, R.id.btnMinus,
+                R.id.btnDivide, R.id.btnMultiply -> workWithOperand(findViewById(v.id))
                 R.id.btnClear -> {
-                    txtViewResult!!.text = "0"
+                    txtViewResult?.text = resources.getString(R.string.zero)
                     number.setLength(0)
                     clearVariables()
                 }
                 R.id.btnOk -> {
                     val intent = Intent()
-                    intent.putExtra("currentDigit", txtViewResult!!.text.toString())
+                    intent.putExtra(currentDigitKey, txtViewResult?.text.toString())
                     setResult(RESULT_OK, intent)
                     finish()
                 }
-                R.id.btnEqual -> workWithOperand("=", btnEqual!!)
+                R.id.btnEqual -> workWithOperand(findViewById(v.id))
             }
         }
 

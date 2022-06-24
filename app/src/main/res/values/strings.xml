@@ -24,4 +24,5 @@
     <string name="Calculator">Калькулятор</string>
     <string name="noDigits">Значений пока нет</string>
     <string name="noDigit">Нет значения</string>
+    <string name="dontInputNumber">Вы не ввели число</string>
 </resources>

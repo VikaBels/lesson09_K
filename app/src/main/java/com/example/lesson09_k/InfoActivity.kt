@@ -1,8 +1,8 @@
 package com.example.lesson09_k
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.text.TextUtils
 import android.text.method.ScrollingMovementMethod
 import android.widget.Button
@@ -13,6 +13,10 @@ import androidx.appcompat.app.AppCompatActivity
 
 class InfoActivity : AppCompatActivity() {
     private val keyListValue = "list"
+    private val currentDigitKey="currentDigit"
+    private val emptyLine =""
+    private val slashN: String ="\n"
+    private val maxCountNumbers: Int = 5
 
     private var allDigits: TextView? = null
     private var currentDigit: TextView? = null
@@ -24,7 +28,8 @@ class InfoActivity : AppCompatActivity() {
 
     private var digit: String? = null
     private var refactorLine: String? = null
-    private val txtNoDigit = "Вы не ввели число"
+
+    private val txtNoDigit = R.string.dontInputNumber
 
     private fun findViewById() {
         allDigits = findViewById(R.id.allDigit)
@@ -33,21 +38,22 @@ class InfoActivity : AppCompatActivity() {
         btnCalculator = findViewById(R.id.btnCalculator)
     }
 
-    private fun validate(digit: String) {
-        if (listNumber.size == 5) {
+    private fun validate(digit: String?) {
+        if (listNumber.size == maxCountNumbers) {
             listNumber.remove(0)
-
         }
-        listNumber.add(digit.toInt())
-        refactorLine = TextUtils.join("\n", listNumber)
-        updateValues(refactorLine!!)
+        if (digit != null) {
+            listNumber.add(digit.toInt())
+        }
+        refactorLine = TextUtils.join(slashN, listNumber)
+        updateValues(refactorLine)
     }
 
     private fun savePreviousList() {
         if (listNumber.size == 0) {
             val txtNumbers: String? = getValues()
-            if (txtNumbers != null) {
-                for (num in txtNumbers.split("\n")) {
+            if (txtNumbers != "") {
+                for (num in txtNumbers!!.split(slashN)) {
                     listNumber.add(num.toInt())
                 }
             }
@@ -55,32 +61,32 @@ class InfoActivity : AppCompatActivity() {
     }
 
     private fun getValues(): String? {
-        val sp = PreferenceManager
-            .getDefaultSharedPreferences(this)
-        return sp.getString(keyListValue, "")
+        val sp = getSharedPreferences(emptyLine, Context.MODE_PRIVATE)
+        return sp.getString(keyListValue, emptyLine)
     }
 
-    private fun updateValues(refactorLine: String) {
-        val sp = PreferenceManager
-            .getDefaultSharedPreferences(this)
+    private fun updateValues(refactorLine: String?) {
+        val sp = getSharedPreferences(emptyLine, Context.MODE_PRIVATE)
         val editor = sp.edit()
         editor.putString(keyListValue, refactorLine)
         editor.apply()
     }
 
-    private fun openSomeActivityForResult() {
+    private fun openCalculatorActivityForResult() {
         val intent = Intent(this, CalculatorActivity::class.java)
-        someActivityResultLauncher.launch(intent)
+        calculatorActivityResultLauncher.launch(intent)
     }
 
-    private var someActivityResultLauncher = registerForActivityResult(
+    private var calculatorActivityResultLauncher = registerForActivityResult(
         StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
-            val data = result.data!!
-            digit = data.getStringExtra("currentDigit")
-            currentDigit!!.text = digit
-            allDigits!!.text = getValues()
+            val data = result.data
+            if (data != null) {
+                digit = data.getStringExtra(currentDigitKey)
+                currentDigit?.text = digit
+                allDigits?.text = getValues()
+            }
         }
     }
 
@@ -92,11 +98,11 @@ class InfoActivity : AppCompatActivity() {
 
         savePreviousList()
 
-        allDigits!!.text=getValues()
-        allDigits!!.movementMethod =ScrollingMovementMethod()
+        allDigits?.text = getValues()
+        allDigits?.movementMethod = ScrollingMovementMethod()
 
-        btnSave!!.setOnClickListener {
-            if (digit == null || digit == "") {
+        btnSave?.setOnClickListener {
+            if (digit == null || digit == emptyLine) {
                 val toast = Toast.makeText(
                     applicationContext,
                     txtNoDigit,
@@ -104,12 +110,12 @@ class InfoActivity : AppCompatActivity() {
                 )
                 toast.show()
             } else {
-                validate(digit!!)
+                validate(digit)
             }
         }
 
         btnCalculator!!.setOnClickListener {
-            openSomeActivityForResult()
+            openCalculatorActivityForResult()
         }
 
     }
