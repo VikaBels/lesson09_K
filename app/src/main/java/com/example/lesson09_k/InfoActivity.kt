@@ -50,7 +50,7 @@ class InfoActivity : AppCompatActivity() {
         if (listNumber.size == MAX_COUNT_NUMBER) {
             listNumber.remove(0)
         }
-        if (digit != null) {
+        if (!digit.isNullOrEmpty()) {
             digit.toIntOrNull()?.let { listNumber.add(it) }
         }
         refactorLine = TextUtils.join(SLASH_N, listNumber)
@@ -109,7 +109,7 @@ class InfoActivity : AppCompatActivity() {
         allDigits?.movementMethod = ScrollingMovementMethod()
 
         btnSave?.setOnClickListener {
-            if (digit == null || digit == EMPTY_LINE) {
+            if (digit.isNullOrEmpty() || digit == EMPTY_LINE) {
                 val toast = Toast.makeText(
                     applicationContext,
                     R.string.dontInputNumber,
