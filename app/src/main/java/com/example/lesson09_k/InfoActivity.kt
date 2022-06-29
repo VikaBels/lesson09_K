@@ -1,5 +1,6 @@
 package com.example.lesson09_k
 
+import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -8,15 +9,18 @@ import android.text.method.ScrollingMovementMethod
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 
 class InfoActivity : AppCompatActivity() {
-    private val keyListValue = "list"
-    private val currentDigitKey="currentDigit"
-    private val emptyLine =""
-    private val slashN: String ="\n"
-    private val maxCountNumbers: Int = 5
+    companion object {
+        const val KEY_LIST_VALUE = "list"
+        const val KEY_CURRENT_DIGIT = "currentDigit"
+        const val EMPTY_LINE = ""
+        const val SLASH_N: String = "\n"
+        const val MAX_COUNT_NUMBER: Int = 5
+    }
 
     private var allDigits: TextView? = null
     private var currentDigit: TextView? = null
@@ -29,63 +33,66 @@ class InfoActivity : AppCompatActivity() {
     private var digit: String? = null
     private var refactorLine: String? = null
 
-    private val txtNoDigit = R.string.dontInputNumber
+    private var calculatorActivityResultLauncher =
+        registerForActivityResult(StartActivityForResult()) { result ->
+            checkingResultOfCode(result)
+        }
 
-    private fun findViewById() {
+
+    private fun findViewsById() {
         allDigits = findViewById(R.id.allDigit)
         currentDigit = findViewById(R.id.currentDigit)
         btnSave = findViewById(R.id.btnSave)
         btnCalculator = findViewById(R.id.btnCalculator)
     }
 
-    private fun validate(digit: String?) {
-        if (listNumber.size == maxCountNumbers) {
+    private fun addingNumberToArray(digit: String?) {
+        if (listNumber.size == MAX_COUNT_NUMBER) {
             listNumber.remove(0)
         }
         if (digit != null) {
-            listNumber.add(digit.toInt())
+            digit.toIntOrNull()?.let { listNumber.add(it) }
         }
-        refactorLine = TextUtils.join(slashN, listNumber)
-        updateValues(refactorLine)
+        refactorLine = TextUtils.join(SLASH_N, listNumber)
+        updateListNumbers(refactorLine)
     }
 
     private fun savePreviousList() {
-        if (listNumber.size == 0) {
-            val txtNumbers: String? = getValues()
-            if (txtNumbers != "") {
-                for (num in txtNumbers!!.split(slashN)) {
-                    listNumber.add(num.toInt())
+        if (listNumber.isEmpty()) {
+            val txtNumbers: String? = getListNumbers()
+            if (!txtNumbers.isNullOrEmpty()) {
+                for (num in txtNumbers.split(SLASH_N)) {
+                    num.toIntOrNull()?.let { listNumber.add(it) }
                 }
             }
         }
     }
 
-    private fun getValues(): String? {
-        val sp = getSharedPreferences(emptyLine, Context.MODE_PRIVATE)
-        return sp.getString(keyListValue, emptyLine)
+    private fun getListNumbers(): String? {
+        val sp = getSharedPreferences(EMPTY_LINE, Context.MODE_PRIVATE)
+        println(sp.getString(KEY_LIST_VALUE, EMPTY_LINE))
+        return sp.getString(KEY_LIST_VALUE, EMPTY_LINE)
     }
 
-    private fun updateValues(refactorLine: String?) {
-        val sp = getSharedPreferences(emptyLine, Context.MODE_PRIVATE)
+    private fun updateListNumbers(refactorLine: String?) {
+        val sp = getSharedPreferences(EMPTY_LINE, Context.MODE_PRIVATE)
         val editor = sp.edit()
-        editor.putString(keyListValue, refactorLine)
+        editor.putString(KEY_LIST_VALUE, refactorLine)
         editor.apply()
     }
 
-    private fun openCalculatorActivityForResult() {
+    private fun onClickBtnCalculator() {
         val intent = Intent(this, CalculatorActivity::class.java)
         calculatorActivityResultLauncher.launch(intent)
     }
 
-    private var calculatorActivityResultLauncher = registerForActivityResult(
-        StartActivityForResult()
-    ) { result ->
+    private fun checkingResultOfCode(result: ActivityResult) {
         if (result.resultCode == RESULT_OK) {
             val data = result.data
             if (data != null) {
-                digit = data.getStringExtra(currentDigitKey)
+                digit = data.getStringExtra(KEY_CURRENT_DIGIT)
                 currentDigit?.text = digit
-                allDigits?.text = getValues()
+                allDigits?.text = getListNumbers()
             }
         }
     }
@@ -94,28 +101,28 @@ class InfoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_info)
 
-        findViewById()
+        findViewsById()
 
         savePreviousList()
 
-        allDigits?.text = getValues()
+        allDigits?.text = getListNumbers()
         allDigits?.movementMethod = ScrollingMovementMethod()
 
         btnSave?.setOnClickListener {
-            if (digit == null || digit == emptyLine) {
+            if (digit == null || digit == EMPTY_LINE) {
                 val toast = Toast.makeText(
                     applicationContext,
-                    txtNoDigit,
+                    R.string.dontInputNumber,
                     Toast.LENGTH_SHORT
                 )
                 toast.show()
             } else {
-                validate(digit)
+                addingNumberToArray(digit)
             }
         }
 
         btnCalculator!!.setOnClickListener {
-            openCalculatorActivityForResult()
+            onClickBtnCalculator()
         }
 
     }

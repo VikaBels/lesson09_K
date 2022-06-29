@@ -8,6 +8,17 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class CalculatorActivity : AppCompatActivity() {
+    companion object {
+        private const val KEY_CURRENT_DIGIT = "currentDigit"
+        private const val EMPTY_LINE =""
+
+        private const val OPERAND_EQUAL: String = "="
+        private const val OPERAND_PLUS: String = "+"
+        private const val OPERAND_MINUS: String = "-"
+        private const val OPERAND_MULTIPLY: String = "*"
+        private const val OPERAND_DIVIDE: String = "/"
+    }
+
     private var btnZero: Button? = null
     private var btnOne: Button? = null
     private var btnTwo: Button? = null
@@ -39,17 +50,7 @@ class CalculatorActivity : AppCompatActivity() {
     private var helpInt = 0
     private var helperSum = 0
 
-    private val currentDigitKey = "currentDigit"
-    private val emptyLine =""
-
-    private var equalOperand: String = "="
-    private var plusOperand: String = "+"
-    private var minusOperand: String = "-"
-    private var multiplyOperand: String = "*"
-    private var divideOperand: String = "/"
-
-
-    private fun findViewById() {
+    private fun findViewsById() {
         btnZero = findViewById(R.id.btnZero)
         btnOne = findViewById(R.id.btnOne)
         btnTwo = findViewById(R.id.btnTwo)
@@ -90,7 +91,7 @@ class CalculatorActivity : AppCompatActivity() {
         btnOk?.setOnClickListener(allButton)
     }
 
-    private fun selectedButtonClick(selectedButton: Button) {
+    private fun clickOnNumberBtn(selectedButton: Button) {
         number.append(selectedButton.text.toString().trim { it <= ' ' })
         txtViewResult?.text = number
     }
@@ -100,16 +101,18 @@ class CalculatorActivity : AppCompatActivity() {
     }
 
     private fun workWithOperand( selectedButton: Button) {
-        if (selectedButton.text == equalOperand && operand == equalOperand) {
+        if (selectedButton.text == OPERAND_EQUAL && operand == OPERAND_EQUAL) {
             num1 = helperSum
             operand = helpOperand
         }
+
+        val selectedNumber: Int = parseStringBuilderToInt(number)
         if (num1 == 0) {
-            num1 = parseStringBuilderToInt(number)
+            num1 = selectedNumber
             operand = selectedButton.text.toString()
         } else if (num2 == 0) {
             try {
-                num2 = parseStringBuilderToInt(number)
+                num2 = selectedNumber
                 helpInt = num2
                 helpOperand = operand
             } catch (e: Exception) {
@@ -120,20 +123,20 @@ class CalculatorActivity : AppCompatActivity() {
                 num2 = helpInt
             }
             when (operand) {
-                plusOperand -> num1 += num2
-                minusOperand -> num1 -= num2
-                divideOperand ->
+                OPERAND_PLUS -> num1 += num2
+                OPERAND_MINUS -> num1 -= num2
+                OPERAND_DIVIDE ->
                     if (num2 == 0) {
                         error = true
                     } else {
                         num1 /= num2
                     }
-                multiplyOperand -> num1 *= num2
+                OPERAND_MULTIPLY -> num1 *= num2
             }
             operand = selectedButton.text.toString()
             num2 = 0
         }
-        if (selectedButton.text.toString() == equalOperand) {
+        if (selectedButton.text.toString() == OPERAND_EQUAL) {
             txtViewResult?.text =
                 if (error) resources.getString(R.string.error) else num1.toString()
             number.setLength(0)
@@ -144,11 +147,11 @@ class CalculatorActivity : AppCompatActivity() {
     }
 
     private fun clearVariables() {
-        operand = emptyLine
+        operand = EMPTY_LINE
         num1 = 0
         helpInt = 0
         helperSum = 0
-        helpOperand = emptyLine
+        helpOperand = EMPTY_LINE
     }
 
 
@@ -156,13 +159,13 @@ class CalculatorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_calculator)
 
-        findViewById()
+        findViewsById()
 
         val allButton = View.OnClickListener { v ->
             when (v.id) {
                 R.id.btnZero, R.id.btnOne, R.id.btnTwo, R.id.btnThree,
                 R.id.btnFour, R.id.btnFive, R.id.btnSix, R.id.btnSeven,
-                R.id.btnEight, R.id.btnNine -> selectedButtonClick(findViewById(v.id))
+                R.id.btnEight, R.id.btnNine -> clickOnNumberBtn(findViewById(v.id))
                 R.id.btnPlus, R.id.btnMinus,
                 R.id.btnDivide, R.id.btnMultiply -> workWithOperand(findViewById(v.id))
                 R.id.btnClear -> {
@@ -172,19 +175,19 @@ class CalculatorActivity : AppCompatActivity() {
                 }
                 R.id.btnOk -> {
                     val intent = Intent()
-                    intent.putExtra(currentDigitKey, txtViewResult?.text.toString())
+                    intent.putExtra(KEY_CURRENT_DIGIT, txtViewResult?.text.toString())
                     setResult(RESULT_OK, intent)
                     finish()
                 }
                 R.id.btnEqual -> workWithOperand(findViewById(v.id))
             }
         }
-
         setOnClickListener(allButton)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+
         btnZero = null
         btnOne = null
         btnTwo = null
